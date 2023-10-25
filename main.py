@@ -11,11 +11,11 @@ window.title("Mapa metro de Lyon")
 
 col = 30 #dimensiones tablero (eje x)
 row = 32 #dimensiones tablero (eje y)
-init = (0,0) #posicion inicial (row,col)
-end = (random.randint(0,row-1),random.randint(0,col-1)) #posicion final
-print("Posicion final:",end)
-while end == init:
-    end = (random.randint(0,row-1),random.randint(0,col-1)) #asegurarnos de que no tiene el mismo inicio y final
+#init = (0,0) #posicion inicial (row,col)
+#end = (random.randint(0,row-1),random.randint(0,col-1)) #posicion final
+#print("Posicion final:",end)
+#while end == init:
+#    end = (random.randint(0,row-1),random.randint(0,col-1)) #asegurarnos de que no tiene el mismo inicio y final
 
 # TABLERO
 # El tablero es una lista de listas
@@ -24,6 +24,7 @@ for i in range(col):
     cell_row = [] #lista de celdas por fila
     for j in range(row):
         cell = tk.Label(window, width=3, height=1, background="grey85", relief="raised", borderwidth=1) #crear celda
+        #cell = tk.Label(window, width=5, height=2, background="grey85", relief="raised", borderwidth=1) #mapa más grande
         cell.grid(row=j, column=i) #añadir celda a la ventana
         cell_row.append(cell) #añadir celda a la fila
     grid_cells.append(cell_row) #añadir fila a la lista de celdas
@@ -86,7 +87,7 @@ colores_lineas = {
     'Roja': 'red',
     'Azul': 'blue',
     'Naranja': 'orange',
-    'Verde': 'green',
+    'Verde': 'green3',
 }
 
 estaciones_transbordo = {
@@ -155,25 +156,60 @@ def unir_y_pintar(nodo1, nodo2):
 for estacion1, estacion2, distancia in conexiones:
     unir_y_pintar(estacion1, estacion2)
 
-set_color(5,13,"green") #rellenar un hueco en el mapa
+set_color(5,13,"green3") #rellenar un hueco en el mapa
 
-# def dibujar_nodos():
-#     for nodo, estacion in estaciones.items():
-#         linea = estacion['linea']
-#         color = colores_lineas.get(linea, 'black')  # Usar negro como color predeterminado si no se encuentra la línea
-#         pos = estacion['pos']
-#         if nodo == 'AB': # los colores de los transbordos están marcados como la mezcla de los colores de ambas lineas
-#             set_color(pos[0], pos[1], "purple")
-#         elif nodo == 'AC':
-#             set_color(pos[0], pos[1], "maroon")
-#         elif nodo == 'AD':
-#             set_color(pos[0], pos[1], "yellow")
-#         elif nodo == 'BD':
-#             set_color(pos[0], pos[1], "turquoise1")
-#         else: # color por defecto
-#             set_color(pos[0], pos[1], color)
+# DIBUJA NODOS
+# Color nodos (para diferenciarlos del camino)
+colores_nodos = {
+    'Roja': 'red4',
+    'Azul': 'blue4',
+    'Naranja': 'orange4',
+    'Verde': 'dark green',
+}
 
-# dibujar_nodos()
+def dibujar_nodos():
+    for nodo, estacion in estaciones.items():
+        linea = estacion['linea']
+        color = colores_nodos.get(linea, 'black')  # Usar negro como color predeterminado si no se encuentra la línea
+        pos = estacion['pos']
+        if nodo in estaciones_transbordo:
+            set_color(pos[0], pos[1], "black")
+        else: # color por defecto
+            set_color(pos[0], pos[1], color)
+
+dibujar_nodos()
+
+# MOSTRAR INFO
+# Función para mostrar información de una estación
+def mostrar_info(event, estacion):
+    nombre = metro.nodes[estacion]['nombre']
+    lineas = set()  # utilizamos un conjunto para evitar duplicados
+    for vecino in metro.neighbors(estacion): # recorrer estaciones vecinas
+        linea_vecino = metro.nodes[vecino]['linea'] # obtener linea del vecino
+        lineas.add(linea_vecino)  # agregar la línea del vecino al conjunto
+    if estacion in estaciones_transbordo: # es estación transbordo
+        lineas_str = ', '.join(lineas)
+        info_label.config(text=f"Nombre: {nombre}\nLíneas: {lineas_str}")
+    else: # no es estacion transbordo
+        lineas_str = ''.join(lineas)
+        info_label.config(text=f"Nombre: {nombre}\nLínea: {lineas_str}")
+
+# Etiqueta para mostrar información
+info_label = tk.Label(window, text="", background="grey85") #crear etiqueta
+info_label.grid(row=row, columnspan=col) #añadir etiqueta a la ventana
+
+# Configurar eventos de ratón para cada celda
+for i in range(col): 
+    for j in range(row):
+        estacion = None
+        for nodo, pos in estaciones.items():
+            if pos['pos'] == (i, j):
+                estacion = nodo #guardar estacion
+                break
+        if estacion: #si estaciópn tiene valor
+            cell = grid_cells[i][j] #obtener celda
+            cell.bind("<Enter>", lambda event, estacion=estacion: mostrar_info(event, estacion)) #mostrar info al pasar el ratón por encima
+            cell.bind("<Leave>", lambda event: info_label.config(text="")) #borrar info al quitar el ratón
 
 # TESTS
 #set_color(init[0],init[1],"green")
