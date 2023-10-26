@@ -68,15 +68,17 @@ estaciones = {
 for nodo, estacion in estaciones.items(): #para añadir nodos con atributos y acceder a ellos
     metro.add_node(nodo, nombre=estacion['nombre'], linea=estacion['linea'], pos=estacion['pos'])
 
-# Agregar aristas (conexiones) y pesos (distancia)
+# Agregar aristas (conexiones) y pesos (distancia en metros)
+# En nuestro caso el peso es la distancia entre dos estaciones pero podría ser el tiempo que tarda en llegar de una a otra
+# Por tanto, nosotros comprobamos el camino más corto pero no el más rápido
 conexiones = [
-    ('A1', 'A2', 5), ('A2', 'AD', 1), ('AD', 'A4', 1), ('A4', 'AC', 1), ('AC', 'A6', 1), ('A6', 'A7', 1), ('A7', 'AB', 1),
-    ('AB', 'A9', 1), ('A9', 'A10', 1), ('A10', 'A11', 1), ('A11', 'A12', 1), ('A12', 'A13', 1), ('A13', 'A14', 1),
-    ('B1', 'B2', 1), ('B2', 'B3', 1), ('B3', 'B4', 1), ('B4', 'B5', 1), ('B5', 'BD', 1), ('BD', 'B7', 1), ('B7', 'B8', 1),
-    ('B8', 'B9', 1), ('B9', 'AB', 1),
-    ('C1', 'C2', 1), ('C2', 'C3', 1), ('C3', 'C4', 1), ('C4', 'AC', 1),
-    ('D1', 'D2', 1), ('D2', 'D3', 1), ('D3', 'D4', 1), ('D4', 'AD', 1), ('AD', 'D6', 1), ('D6', 'BD', 1), ('BD', 'D8', 1), 
-    ('D8', 'D9', 1), ('D9', 'D10', 1), ('D10', 'D11', 1), ('D11', 'D12', 1), ('D12', 'D13', 1), ('D13', 'D14', 1), ('D14', 'D15', 1),
+    ('A1', 'A2', 416), ('A2', 'AD', 654), ('AD', 'A4', 660), ('A4', 'AC', 460), ('AC', 'A6', 670), ('A6', 'A7', 660), ('A7', 'AB', 830),
+    ('AB', 'A9', 770), ('A9', 'A10', 750), ('A10', 'A11', 590), ('A11', 'A12', 840), ('A12', 'A13', 680), ('A13', 'A14', 1050),
+    ('B1', 'B2', 1780), ('B2', 'B3', 570), ('B3', 'B4', 800), ('B4', 'B5', 950), ('B5', 'BD', 960), ('BD', 'B7', 610), ('B7', 'B8', 990),
+    ('B8', 'B9', 580), ('B9', 'AB', 440),
+    ('C1', 'C2', 821), ('C2', 'C3', 659), ('C3', 'C4', 620), ('C4', 'AC', 400),
+    ('D1', 'D2', 695), ('D2', 'D3', 955), ('D3', 'D4', 1740), ('D4', 'AD', 660), ('AD', 'D6', 710), ('D6', 'BD', 400), ('BD', 'D8', 610), 
+    ('D8', 'D9', 900), ('D9', 'D10', 600), ('D10', 'D11', 640), ('D11', 'D12', 760), ('D12', 'D13', 1040), ('D13', 'D14', 1190), ('D14', 'D15', 1600),
 ]
 
 for estacion1, estacion2, distancia in conexiones: #para añadir aristas con pesos y acceder a ellos
@@ -216,12 +218,12 @@ for i in range(col):
 #set_color(end[0],end[1],"red")
 
 # distancia total
-inicio = 'A1'
+inicio = 'D1'
 destino = 'D15'
 
 # distancia entre dos estaciones
 distancia = nx.shortest_path_length(metro, inicio, destino, weight='distancia')
-print(f"Distancia entre {inicio} {metro.nodes[inicio]} y {destino}: {distancia}")
+print(f"Distancia entre {inicio} {metro.nodes[inicio]} y {destino}: {distancia} m")
 
 # estaciones vecinas
 estacion = 'A1'
