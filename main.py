@@ -109,7 +109,8 @@ def unir_y_pintar(nodo1, nodo2):
         color = colores_lineas[estaciones[nodo1]['linea']]
     else: #si no, pintar de color morado (no debería pasar)
         color = 'purple'
-        print(f"-",nodo1, nodo2)
+    
+    #set_color(5,13,"green3") #rellenar un hueco en el mapa
     
     pos1 = estaciones[nodo1]['pos']
     pos2 = estaciones[nodo2]['pos']
@@ -130,35 +131,36 @@ def unir_y_pintar(nodo1, nodo2):
             for row in range(pos2[0], pos1[0] + 1):
                 set_color(row, pos1[1], color)
     else: #diagonal
-        if pos1[0] < pos2[0] and pos1[1] < pos2[1]: #diagonal, nodo1 arriba-izquierda de nodo2
-            row, col = pos1 #posicion inicial
-            while row <= pos2[0] and col <= pos2[1]: 
-                set_color(row, col, color)
-                row += 1
-                col += 1
-        elif pos1[0] < pos2[0] and pos1[1] > pos2[1]: #diagonal, nodo1 arriba-derecha de nodo2
-            row, col = pos1
-            while row <= pos2[0] and col >= pos2[1]:
-                set_color(row, col, color)
-                row += 1
-                col -= 1
-        elif pos1[0] > pos2[0] and pos1[1] < pos2[1]: #diagonal, nodo1 abajo-izquierda de nodo2
-            row, col = pos1
-            while row >= pos2[0] and col <= pos2[1]:
-                set_color(row, col, color)
-                row -= 1
-                col += 1
-        else: #diagonal, nodo1 abajo-derecha de nodo2
-            row, col = pos1
-            while row >= pos2[0] and col >= pos2[1]:
-                set_color(row, col, color)
-                row -= 1
-                col -= 1
+        #Calcular la pendiente entre los dos nodos
+        dx = pos2[1] - pos1[1]
+        dy = pos2[0] - pos1[0]
+        if abs(dx) > abs(dy):  # mayor cambio en x
+            if dx > 0:
+                # nodo2 a la derecha de nodo1
+                for col in range(pos1[1], pos2[1] + 1):
+                    row = pos2[0] + (col - pos2[1]) * dy / dx
+                    set_color(int(row), col, color)
+            else:
+                # nodo2 a la izquierda de nodo1
+                for col in range(pos2[1], pos1[1] + 1):
+                    row = pos1[0] + (col - pos1[1]) * dy / dx
+                    set_color(int(row), col, color)
+        else:  # mayor cambio en y
+            if dy > 0:
+                # nodo2 abajo de nodo1
+                for row in range(pos1[0], pos2[0] + 1):
+                    col = pos2[1] + (row - pos2[0]) * dx / dy
+                    set_color(row, int(col), color)
+            else:
+                # nodo2 arriba de nodo1
+                for row in range(pos2[0], pos1[0] + 1):
+                    col = pos1[1] + (row - pos1[0]) * dx / dy
+                    set_color(row, int(col), color)
 
 for estacion1, estacion2, distancia in conexiones:
     unir_y_pintar(estacion1, estacion2)
 
-set_color(5,13,"green3") #rellenar un hueco en el mapa
+
 
 # DIBUJA NODOS
 # Color nodos (para diferenciarlos del camino)
@@ -175,14 +177,14 @@ def dibujar_nodos():
         color = colores_nodos.get(linea, 'black')  # Usar negro como color predeterminado si no se encuentra la línea
         pos = estacion['pos']
         if nodo in estaciones_transbordo:
-            set_color(pos[0], pos[1], "black")
+            set_color(pos[0], pos[1], "yellow")
         else: # color por defecto
             set_color(pos[0], pos[1], color)
 
 dibujar_nodos()
 
 # MOSTRAR INFO
-# Función para mostrar información de una estación
+# Función para mostrar información de una estación en el mapa
 def mostrar_info(event, estacion):
     nombre = metro.nodes[estacion]['nombre']
     lineas = set()  # utilizamos un conjunto para evitar duplicados
@@ -213,13 +215,15 @@ for i in range(col):
             cell.bind("<Enter>", lambda event, estacion=estacion: mostrar_info(event, estacion)) #mostrar info al pasar el ratón por encima
             cell.bind("<Leave>", lambda event: info_label.config(text="")) #borrar info al quitar el ratón
 
+# ALGORITMO
+
 # TESTS
 #set_color(init[0],init[1],"green")
 #set_color(end[0],end[1],"red")
 
 # distancia total
-inicio = 'D1'
-destino = 'D15'
+inicio = 'A1'
+destino = 'B1'
 
 # distancia entre dos estaciones
 distancia = nx.shortest_path_length(metro, inicio, destino, weight='distancia')
