@@ -110,8 +110,6 @@ def unir_y_pintar(nodo1, nodo2):
     else: #si no, pintar de color morado (no debería pasar)
         color = 'purple'
     
-    #set_color(5,13,"green3") #rellenar un hueco en el mapa
-    
     pos1 = estaciones[nodo1]['pos']
     pos2 = estaciones[nodo2]['pos']
 
@@ -160,8 +158,6 @@ def unir_y_pintar(nodo1, nodo2):
 for estacion1, estacion2, distancia in conexiones:
     unir_y_pintar(estacion1, estacion2)
 
-
-
 # DIBUJA NODOS
 # Color nodos (para diferenciarlos del camino)
 colores_nodos = {
@@ -187,16 +183,18 @@ dibujar_nodos()
 # Función para mostrar información de una estación en el mapa
 def mostrar_info(event, estacion):
     nombre = metro.nodes[estacion]['nombre']
-    lineas = set()  # utilizamos un conjunto para evitar duplicados
-    for vecino in metro.neighbors(estacion): # recorrer estaciones vecinas
-        linea_vecino = metro.nodes[vecino]['linea'] # obtener linea del vecino
-        lineas.add(linea_vecino)  # agregar la línea del vecino al conjunto
-    if estacion in estaciones_transbordo: # es estación transbordo
+    lineas = set()  # Utilizamos un conjunto para evitar duplicados
+    lineas.add(metro.nodes[estacion]['linea'])  # Agregamos la línea de la estación actual
+
+    if estacion in estaciones_transbordo:  # Es estación transbordo
+        for vecino in metro.neighbors(estacion):
+            linea_vecino = metro.nodes[vecino]['linea']
+            lineas.add(linea_vecino)  # Agregamos las líneas de los vecinos al conjunto
         lineas_str = ', '.join(lineas)
         info_label.config(text=f"Nombre: {nombre}\nLíneas: {lineas_str}")
-    else: # no es estacion transbordo
-        lineas_str = ''.join(lineas)
-        info_label.config(text=f"Nombre: {nombre}\nLínea: {lineas_str}")
+    else:  # No es estación transbordo
+        linea = metro.nodes[estacion]['linea']
+        info_label.config(text=f"Nombre: {nombre}\nLínea: {linea}")
 
 # Etiqueta para mostrar información
 info_label = tk.Label(window, text="", background="grey85") #crear etiqueta
