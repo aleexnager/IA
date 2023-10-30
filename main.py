@@ -99,16 +99,19 @@ estaciones_transbordo = {
     'BD',
 }
 
-def unir_y_pintar(nodo1, nodo2):
-    #si ambos nodos están en la misma linea, pintar de ese color
-    if estaciones[nodo1]['linea'] == estaciones[nodo2]['linea']:
-        color = colores_lineas[estaciones[nodo1]['linea']]
-    elif nodo1 in estaciones_transbordo: #es un nodo transbordo
-        color = colores_lineas[estaciones[nodo2]['linea']]
-    elif nodo2 in estaciones_transbordo: #es un nodo transbordo
-        color = colores_lineas[estaciones[nodo1]['linea']]
-    else: #si no, pintar de color morado (no debería pasar)
-        color = 'purple'
+def unir_y_pintar(nodo1, nodo2, color=None):
+    if color == None:
+        #si ambos nodos están en la misma linea, pintar de ese color
+        if estaciones[nodo1]['linea'] == estaciones[nodo2]['linea']:
+            color = colores_lineas[estaciones[nodo1]['linea']]
+        elif nodo1 in estaciones_transbordo: #es un nodo transbordo
+            color = colores_lineas[estaciones[nodo2]['linea']]
+        elif nodo2 in estaciones_transbordo: #es un nodo transbordo
+            color = colores_lineas[estaciones[nodo1]['linea']]
+        else: #si no, pintar de color morado (no debería pasar)
+            color = 'purple'
+    else:
+        color = color
     
     pos1 = estaciones[nodo1]['pos']
     pos2 = estaciones[nodo2]['pos']
@@ -219,25 +222,119 @@ def h (nodo1, nodo2): #heurística
     pos2 = estaciones[nodo2]['pos']
     return math.sqrt((pos1[0]-pos2[0])**2 + (pos1[1]-pos2[1])**2) #modulo de un vector
 
-# def aEstrella(metro, inicio, fin):
-     
+def aEstrella(metro, inicio, fin):
+    # Inicializamos los conjuntos abiertos y cerrados
+    abiertos = PriorityQueue()
+    abiertos.put((0, inicio))  # La prioridad es el costo acumulado + la heurística
+    cerrados = set()
+
+    # Inicializamos los diccionarios de costos y padres
+    g = {nodo: float('inf') for nodo in metro.nodes()}
+    g[inicio] = 0
+    padre = {}
+
+    while not abiertos.empty():
+        _, nodo_actual = abiertos.get()
+
+        if nodo_actual == fin:
+            # Hemos llegado al destino, reconstruimos el camino
+            camino = []
+            while nodo_actual is not None:
+                camino.insert(0, nodo_actual)
+                nodo_actual = padre.get(nodo_actual, None)
+            return camino
+
+        cerrados.add(nodo_actual)
+
+        for vecino in metro.neighbors(nodo_actual):
+            if vecino in cerrados:
+                continue
+
+            # Calculamos el costo acumulado desde el inicio hasta el vecino
+            nuevo_costo = g[nodo_actual] + metro[nodo_actual][vecino]['distancia']
+
+            if nuevo_costo < g[vecino]:
+                # Este camino es mejor que cualquier otro previamente calculado
+                g[vecino] = nuevo_costo
+                f = nuevo_costo + h(vecino, fin)  # Función f(n) = g(n) + h(n)
+
+                # Actualizamos la cola de prioridad con el nuevo costo
+                abiertos.put((f, vecino))
+                padre[vecino] = nodo_actual
+
+    # Si no se encuentra un camino, devolvemos None
+    return None
+
+def imprime_nodos(camino):
+    if camino:
+        print("Nodos en el camino:")
+        for nodo in camino:
+            if nodo == camino[-1]:
+                print(nodo, end="\n\n") #imprimir con salto de línea
+            else:
+                print(nodo, end=" -> ") #imprimir sin salto de línea
+    else:
+        print("No se encontró un camino válido.")
+
+# Sólo muestra nodos en el camino (sin animación)
+# def mostrar_camino(camino):
+#     if camino:
+#         for nodo in camino:
+#             pos = estaciones[nodo]['pos']
+#             set_color(pos[0], pos[1], "yellow")
+#     else:
+#         print("No se encontró un camino válido.")
+
+# Sólo muestra nodos en el camino (con animación)
+# def mostrar_camino(camino, delay=500):
+#     if not camino:
+#         print("No se encontró un camino válido.")
+#         return
+
+#     def pinta_camino(i=0):
+#         if i < len(camino):
+#             nodo = camino[i]
+#             set_color(estaciones[nodo]['pos'][0], estaciones[nodo]['pos'][1], "blue")
+#             window.update()
+#             window.after(delay, pinta_camino, i + 1)
+    
+#     pinta_camino()
+
+# Muestra nodos y aristas en el camino (sin animación)
+def mostrar_camino(camino, delay=500, color='black'):
+    if not camino:
+        print("No se encontró un camino válido.")
+        return
+
+    def pinta_camino_completo(i=1):
+        if i < len(camino):
+            nodo1 = camino[i - 1]
+            nodo2 = camino[i]
+            unir_y_pintar(nodo1, nodo2, color)  # Pasa el color como argumento
+            window.update()
+            window.after(delay, pinta_camino_completo, i + 1)
+
+    # Pinta la primera celda
+    nodo_inicio = camino[0]
+    set_color(estaciones[nodo_inicio]['pos'][0], estaciones[nodo_inicio]['pos'][1], "blue")
+    window.update()
+    pinta_camino_completo()
 
 # TESTS
-#set_color(init[0],init[1],"green")
-#set_color(end[0],end[1],"red")
-
-# distancia total
-inicio = 'A1'
-destino = 'B1'
+# Llama a aEstrella para obtener el camino
+inicio = 'C1'  # Nodo de inicio
+fin = 'D15'    # Nodo de destino
+camino = aEstrella(metro, inicio, fin)
+mostrar_camino(camino)
+imprime_nodos(camino)
 
 # distancia entre dos estaciones
-distancia = nx.shortest_path_length(metro, inicio, destino, weight='distancia')
-print(f"Distancia entre {inicio} {metro.nodes[inicio]} y {destino}: {distancia} m")
+distancia = nx.shortest_path_length(metro, inicio, fin, weight='distancia')
+print(f"Distancia entre {inicio} {metro.nodes[inicio]} y {fin}: {distancia} m")
 
 # estaciones vecinas
-estacion = 'A1'
-estaciones_conectadas = list(metro.neighbors(estacion))
-print(f"Estaciones conectadas a {estacion} que esta en la pos {nx.get_node_attributes(metro, 'pos')[estacion]}: {estaciones_conectadas}")
-
+# estacion = 'A1'
+# estaciones_conectadas = list(metro.neighbors(estacion))
+# print(f"Estaciones conectadas a {estacion} que esta en la pos {nx.get_node_attributes(metro, 'pos')[estacion]}: {estaciones_conectadas}")
 
 window.mainloop() #bucle principal tkinter
