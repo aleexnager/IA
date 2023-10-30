@@ -214,6 +214,13 @@ for i in range(col):
             cell.bind("<Leave>", lambda event: info_label.config(text="")) #borrar info al quitar el ratón
 
 # ALGORITMO
+def h (nodo1, nodo2): #heurística
+    pos1 = estaciones[nodo1]['pos']
+    pos2 = estaciones[nodo2]['pos']
+    return math.sqrt((pos1[0]-pos2[0])**2 + (pos1[1]-pos2[1])**2) #modulo de un vector
+
+# def aEstrella(metro, inicio, fin):
+     
 
 # TESTS
 #set_color(init[0],init[1],"green")
