@@ -270,71 +270,56 @@ def imprime_nodos(camino):
         print("Nodos en el camino:")
         for nodo in camino:
             if nodo == camino[-1]:
-                print(nodo, end="\n\n") #imprimir con salto de línea
+                print(nodo) #imprimir con salto de línea
             else:
                 print(nodo, end=" -> ") #imprimir sin salto de línea
     else:
         print("No se encontró un camino válido.")
 
-# Sólo muestra nodos en el camino (sin animación)
-# def mostrar_camino(camino):
-#     if camino:
-#         for nodo in camino:
-#             pos = estaciones[nodo]['pos']
-#             set_color(pos[0], pos[1], "yellow")
-#     else:
-#         print("No se encontró un camino válido.")
-
-# Sólo muestra nodos en el camino (con animación)
-# def mostrar_camino(camino, delay=500):
-#     if not camino:
-#         print("No se encontró un camino válido.")
-#         return
-
-#     def pinta_camino(i=0):
-#         if i < len(camino):
-#             nodo = camino[i]
-#             set_color(estaciones[nodo]['pos'][0], estaciones[nodo]['pos'][1], "blue")
-#             window.update()
-#             window.after(delay, pinta_camino, i + 1)
-    
-#     pinta_camino()
-
-# Muestra nodos y aristas en el camino (sin animación)
+# Muestra nodos y aristas en el camino (con animación)
 def mostrar_camino(camino, delay=500, color='black'):
     if not camino:
         print("No se encontró un camino válido.")
         return
 
-    def pinta_camino_completo(i=1):
+    def pinta_camino(i=1):
         if i < len(camino):
             nodo1 = camino[i - 1]
             nodo2 = camino[i]
-            unir_y_pintar(nodo1, nodo2, color)  # Pasa el color como argumento
+            unir_y_pintar(nodo1, nodo2, color)                                            # Pinta la arista
+            set_color(estaciones[nodo1]['pos'][0], estaciones[nodo1]['pos'][1], "grey30") # Pinta el nodo actual
+            window.update()                                                               # Actualiza la ventana
+            window.after(delay, pinta_camino, i + 1)                                      # Llamada recursiva con delay
+        
+        # Pintar el último nodo
+        if i == len(camino):
+            ultimo_nodo = camino[-1]
+            set_color(estaciones[ultimo_nodo]['pos'][0], estaciones[ultimo_nodo]['pos'][1], "grey30")
             window.update()
-            window.after(delay, pinta_camino_completo, i + 1)
 
-    # Pinta la primera celda
-    nodo_inicio = camino[0]
-    set_color(estaciones[nodo_inicio]['pos'][0], estaciones[nodo_inicio]['pos'][1], "blue")
-    window.update()
-    pinta_camino_completo()
+    pinta_camino()
 
-# TESTS
-# Llama a aEstrella para obtener el camino
-inicio = 'C1'  # Nodo de inicio
-fin = 'D15'    # Nodo de destino
-camino = aEstrella(metro, inicio, fin)
-mostrar_camino(camino)
-imprime_nodos(camino)
+def imprimir_distancia(camino, metro):
+    distancia_total = 0 
 
-# distancia entre dos estaciones
-distancia = nx.shortest_path_length(metro, inicio, fin, weight='distancia')
-print(f"Distancia entre {inicio} {metro.nodes[inicio]} y {fin}: {distancia} m")
+    for i in range(len(camino) - 1): #recorrer el camino
+        nodo_actual = camino[i]
+        nodo_siguiente = camino[i + 1]
+        nombre_nodo_actual = metro.nodes[nodo_actual]['nombre']
+        nombre_nodo_siguiente = metro.nodes[nodo_siguiente]['nombre']
+        distancia_entre_nodos = metro[nodo_actual][nodo_siguiente]['distancia']
+        distancia_total += distancia_entre_nodos
+        print(f'Distancia entre {nodo_actual} ({nombre_nodo_actual}) y {nodo_siguiente} ({nombre_nodo_siguiente}): {distancia_entre_nodos} metros')
 
-# estaciones vecinas
-# estacion = 'A1'
-# estaciones_conectadas = list(metro.neighbors(estacion))
-# print(f"Estaciones conectadas a {estacion} que esta en la pos {nx.get_node_attributes(metro, 'pos')[estacion]}: {estaciones_conectadas}")
+    print(f'Distancia total recorrida de inicio a fin: {distancia_total} metros')
+    
+# LLAMADA AL PROGRAMA
+inicio = 'D15'                          # Nodo de inicio
+fin = 'A14'                            # Nodo de destino
 
-window.mainloop() #bucle principal tkinter
+camino = aEstrella(metro, inicio, fin) #llamada al algoritmo
+mostrar_camino(camino)                 #llamada para mostrar el camino (GUI)
+imprime_nodos(camino)                  #llamada para imprimir los nodos del camino
+imprimir_distancia(camino, metro)      #llamada para imprimir las distancias
+
+window.mainloop()                      #bucle principal tkinter
