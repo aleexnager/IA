@@ -12,17 +12,21 @@
 [Practica IA Lyon 2023](/docs/Practica%20IA%20Lyon%202023.pdf)
 
 ## Instalación:
-Primero que todo nos aseguraremos de tener python instalado con `pyhton --version`. En caso de no estar instalado lo instalaremos con:
+Primero que todo nos aseguraremos de tener python instalado con `python --version`. En caso de no estar instalado lo instalaremos con:
 ```
-sudo apt install pyhton-pip
+$ sudo apt-get install python3.6
+```
+Ahora vamos a instalar dos herramientas, una para el entorno gráfico y otra para trabajar con grafos. El gestor de paquetes de python es `pip`. Para instalarlo usaremos:
+```
+$ sudo apt install pyhton3-pip
 ```
 Para el entorno gráfico se ha usado la herramienta GUI `tkinter`. Para instalarla usaremos:
 ```
-sudo apt-get install tkinter
+$ sudo apt-get install python3-tk
 ```
-Para facilitar el trabajo con grafos en el código también se ha usado la herramienta `networkx`. Para instalarla usaremos:
+Para facilitar el trabajo con grafos en el código también se ha usado el paquete `networkx`. Para instalarlo usaremos:
 ```
-pip-networkx
+$ pip install networkx
 ```
 
 ### Posibles mejoras en el código:
