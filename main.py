@@ -227,6 +227,7 @@ def aEstrella(metro, inicio, fin):
     abiertos = PriorityQueue()
     abiertos.put((0, inicio))  # La prioridad es el costo acumulado + la heurística
     cerrados = set()
+<<<<<<< HEAD
 
     # Inicializamos los diccionarios de costos y padres
     g = {nodo: float('inf') for nodo in metro.nodes()}
@@ -336,5 +337,101 @@ print(f"Distancia entre {inicio} {metro.nodes[inicio]} y {fin}: {distancia} m")
 # estacion = 'A1'
 # estaciones_conectadas = list(metro.neighbors(estacion))
 # print(f"Estaciones conectadas a {estacion} que esta en la pos {nx.get_node_attributes(metro, 'pos')[estacion]}: {estaciones_conectadas}")
+=======
 
-window.mainloop() #bucle principal tkinter
+    # Inicializamos los diccionarios de costos y padres
+    g = {nodo: float('inf') for nodo in metro.nodes()}
+    g[inicio] = 0
+    padre = {}
+
+    while not abiertos.empty():
+        _, nodo_actual = abiertos.get()
+
+        if nodo_actual == fin:
+            # Hemos llegado al destino, reconstruimos el camino
+            camino = []
+            while nodo_actual is not None:
+                camino.insert(0, nodo_actual)
+                nodo_actual = padre.get(nodo_actual, None)
+            return camino
+
+        cerrados.add(nodo_actual)
+
+        for vecino in metro.neighbors(nodo_actual):
+            if vecino in cerrados:
+                continue
+>>>>>>> testing
+
+            # Calculamos el costo acumulado desde el inicio hasta el vecino
+            nuevo_costo = g[nodo_actual] + metro[nodo_actual][vecino]['distancia']
+
+            if nuevo_costo < g[vecino]:
+                # Este camino es mejor que cualquier otro previamente calculado
+                g[vecino] = nuevo_costo
+                f = nuevo_costo + h(vecino, fin)  # Función f(n) = g(n) + h(n)
+
+                # Actualizamos la cola de prioridad con el nuevo costo
+                abiertos.put((f, vecino))
+                padre[vecino] = nodo_actual
+
+    # Si no se encuentra un camino, devolvemos None
+    return None
+
+def imprime_nodos(camino):
+    if camino:
+        print("Nodos en el camino:")
+        for nodo in camino:
+            if nodo == camino[-1]:
+                print(nodo) #imprimir con salto de línea
+            else:
+                print(nodo, end=" -> ") #imprimir sin salto de línea
+    else:
+        print("No se encontró un camino válido.")
+
+# Muestra nodos y aristas en el camino (con animación)
+def mostrar_camino(camino, delay=500, color='black'):
+    if not camino:
+        print("No se encontró un camino válido.")
+        return
+
+    def pinta_camino(i=1):
+        if i < len(camino):
+            nodo1 = camino[i - 1]
+            nodo2 = camino[i]
+            unir_y_pintar(nodo1, nodo2, color)                                            # Pinta la arista
+            set_color(estaciones[nodo1]['pos'][0], estaciones[nodo1]['pos'][1], "grey30") # Pinta el nodo actual
+            window.update()                                                               # Actualiza la ventana
+            window.after(delay, pinta_camino, i + 1)                                      # Llamada recursiva con delay
+        
+        # Pintar el último nodo
+        if i == len(camino):
+            ultimo_nodo = camino[-1]
+            set_color(estaciones[ultimo_nodo]['pos'][0], estaciones[ultimo_nodo]['pos'][1], "grey30")
+            window.update()
+
+    pinta_camino()
+
+def imprimir_distancia(camino, metro):
+    distancia_total = 0 
+
+    for i in range(len(camino) - 1): #recorrer el camino
+        nodo_actual = camino[i]
+        nodo_siguiente = camino[i + 1]
+        nombre_nodo_actual = metro.nodes[nodo_actual]['nombre']
+        nombre_nodo_siguiente = metro.nodes[nodo_siguiente]['nombre']
+        distancia_entre_nodos = metro[nodo_actual][nodo_siguiente]['distancia']
+        distancia_total += distancia_entre_nodos
+        print(f'Distancia entre {nodo_actual} ({nombre_nodo_actual}) y {nodo_siguiente} ({nombre_nodo_siguiente}): {distancia_entre_nodos} metros')
+
+    print(f'Distancia total recorrida de inicio a fin: {distancia_total} metros')
+    
+# LLAMADA AL PROGRAMA
+inicio = 'D15'                          # Nodo de inicio
+fin = 'A14'                            # Nodo de destino
+
+camino = aEstrella(metro, inicio, fin) #llamada al algoritmo
+mostrar_camino(camino)                 #llamada para mostrar el camino (GUI)
+imprime_nodos(camino)                  #llamada para imprimir los nodos del camino
+imprimir_distancia(camino, metro)      #llamada para imprimir las distancias
+
+window.mainloop()                      #bucle principal tkinter
