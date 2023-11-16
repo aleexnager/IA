@@ -1,6 +1,6 @@
 import math
-import tkinter as tk    #GUI
-import networkx as nx   #grafo
+import tkinter as tk                # GUI
+import networkx as nx               # Grafo
 import random
 from tkinter import *
 from queue import PriorityQueue
