@@ -9,11 +9,10 @@ from queue import PriorityQueue
 window = tk.Tk()
 window.title("Mapa metro de Lyon")
 
-col = 30 #dimensiones tablero (eje x)
-row = 32 #dimensiones tablero (eje y)
-
 # TABLERO
 # El tablero es una lista de listas
+col = 30                            # Dimensiones tablero (eje x)
+row = 32                            # Dimensiones tablero (eje y)
 grid_cells = []                     # Lista de celdas
 for i in range(col):
     cell_row = []                   # Lista de celdas por fila
@@ -99,11 +98,11 @@ def unir_y_pintar(nodo1, nodo2, color=None):
         # Si ambos nodos estan en la misma linea, pintar del color de la linea
         if estaciones[nodo1]['linea'] == estaciones[nodo2]['linea']:
             color = colores_lineas[estaciones[nodo1]['linea']]
-        elif nodo1 in estaciones_transbordo: #es un nodo transbordo
+        elif nodo1 in estaciones_transbordo: # Es un nodo transbordo
             color = colores_lineas[estaciones[nodo2]['linea']]
-        elif nodo2 in estaciones_transbordo: #es un nodo transbordo
+        elif nodo2 in estaciones_transbordo: # Es un nodo transbordo
             color = colores_lineas[estaciones[nodo1]['linea']]
-        else: #si no, pintar de color morado (no debería pasar)
+        else: # Si no, pintar de color morado (no deberia pasar)
             color = 'purple'
     else:
         color = color
@@ -115,11 +114,11 @@ def unir_y_pintar(nodo1, nodo2, color=None):
     if pos1[0] == pos2[0]: # Misma fila
         if pos1[1] < pos2[1]: 
             # nodo1 a la izquierda de nodo2
-            for col in range(pos1[1], pos2[1] + 1): #pintar desde nodo1 hasta nodo2
+            for col in range(pos1[1], pos2[1] + 1): # Pintar desde nodo1 hasta nodo2
                 set_color(pos1[0], col, color)
         else: 
             #nodo1 a la derecha de nodo2
-            for col in range(pos2[1], pos1[1] + 1): #pintar desde nodo2 hasta nodo1
+            for col in range(pos2[1], pos1[1] + 1): # Pintar desde nodo2 hasta nodo1
                 set_color(pos1[0], col, color)
     elif pos1[1] == pos2[1]: # Misma columna
         if pos1[0] < pos2[0]: 
