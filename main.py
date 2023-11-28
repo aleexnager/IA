@@ -275,7 +275,7 @@ def imprime_nodos(camino):
         print("No se encontró un camino válido.")
 
 # Muestra nodos y aristas en el camino (con animación)
-def mostrar_camino(camino, delay=500, color='black'):
+def mostrar_camino(camino, delay=500, color='grey30'):
     if not camino:
         print("No se encontró un camino válido.")
         return
@@ -285,14 +285,14 @@ def mostrar_camino(camino, delay=500, color='black'):
             nodo1 = camino[i - 1]
             nodo2 = camino[i]
             unir_y_pintar(nodo1, nodo2, color)                                            # Pinta la arista
-            set_color(estaciones[nodo1]['pos'][0], estaciones[nodo1]['pos'][1], "grey30") # Pinta el nodo actual
+            set_color(estaciones[nodo1]['pos'][0], estaciones[nodo1]['pos'][1], "black")  # Pinta el nodo actual
             window.update()                                                               # Actualiza la ventana
             window.after(delay, pinta_camino, i + 1)                                      # Llamada recursiva con delay
         
         # Pintar el último nodo
         if i == len(camino):
             ultimo_nodo = camino[-1]
-            set_color(estaciones[ultimo_nodo]['pos'][0], estaciones[ultimo_nodo]['pos'][1], "grey30")
+            set_color(estaciones[ultimo_nodo]['pos'][0], estaciones[ultimo_nodo]['pos'][1], "black")
             window.update()
 
     pinta_camino()
@@ -312,12 +312,67 @@ def imprimir_distancia(camino, metro):
     print(f'Distancia total recorrida de inicio a fin: {distancia_total} metros')
     
 # LLAMADA AL PROGRAMA
-inicio = 'B2'                          # Nodo de inicio
-fin = 'AB'                             # Nodo de destino
 
-camino = aEstrella(metro, inicio, fin) # Llamada al algoritmo
-mostrar_camino(camino)                 # Llamada para mostrar el camino (GUI)
-imprime_nodos(camino)                  # Llamada para imprimir los nodos del camino
-imprimir_distancia(camino, metro)      # Llamada para imprimir las distancias
+# Nombres de los nodos para pasarlos por la barra de comandos
+nombres_nodos = {
+    'Perrache': 'A1',
+    'Ampère Victor Hugo': 'A2',
+    'Bellecour': 'AD',
+    'Cordeliers': 'A4',
+    'Hôtel de Ville Louis Pradel': 'AC',
+    'Foch': 'A6',
+    'Masséna': 'A7',
+    'Charpennes Charles Hernu': 'AB',
+    'République Villeurbanne': 'A9',
+    'Gratte-Ciel': 'A10',
+    'Flachet': 'A11',
+    'Cusset': 'A12',
+    'Laurent Bonnevay Astroballe': 'A13',
+    'Vaulx-en-Velin La Sole': 'A14',
+    'Oullins Gare': 'B1',
+    'Stade de Gerland': 'B2',
+    'Debourg': 'B3',
+    'Place Jean Jaurès': 'B4',
+    'Jean Macé': 'B5',
+    'Saxe Gambetta': 'BD',
+    'Place Guichard Bourse de Travail': 'B7',
+    'Gare Part-Dieu Vivier Merle': 'B8',
+    'Brotteaux': 'B9',
+    'Cuire': 'C1',
+    'Hénon': 'C2',
+    'Croix-Rousse': 'C3',
+    'Croix-Paquet': 'C4',
+    'Gare de Valse': 'D1',
+    'Valmy': 'D2',
+    'Gorge de Loup': 'D3',
+    'Minimes Théätres Romais': 'D4',
+    'Guillotière': 'D6',
+    'Garibaldi': 'D8',
+    'Sans-Souci': 'D9',
+    'Monplaisir-Lumière': 'D10',
+    'Grange Blanche': 'D11',
+    'Laennec': 'D12',
+    'Mermoz Pinnel': 'D13',
+    'Parilly': 'D14',
+    'Gare de Vénissieux': 'D15',
+}
 
-window.mainloop()                      # Bucle principal tkinter
+inicioAux = input('¿En qué estación está?\n')              # Nombre del nodo de inicio
+finAux = input('¿A qué estación quiere llegar?\n')         # Nombre del nodo de destino
+
+inicio = nombres_nodos.get(inicioAux,'errorIni')         # Nodo de inicio
+fin = nombres_nodos.get(finAux,'errorFin')               # Nodo de destino
+
+if inicio == 'errorIni' and fin == 'errorFin':
+    print('Error: No se han reconocido los nombres de las estaciones de inicio y de destino')    # Error con los nombres de los nodos de inicio y de destino
+elif inicio == 'errorIni':
+    print('Error: No se ha reconocido el nombre de la estación de inicio')                       # Error con el nombre del nodo de inicio
+elif fin == 'errorFin':
+    print('Error: No se ha reconocido el nombre de la estación de destino')                      # Error con el nombre del nodo de destino
+else:
+    camino = aEstrella(metro, inicio, fin) # Llamada al algoritmo
+    mostrar_camino(camino)                 # Llamada para mostrar el camino (GUI)
+    imprime_nodos(camino)                  # Llamada para imprimir los nodos del camino
+    imprimir_distancia(camino, metro)      # Llamada para imprimir las distancias
+
+    window.mainloop()                      # Bucle principal tkinter
