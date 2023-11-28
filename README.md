@@ -4,7 +4,7 @@
 
 ### Autores:
 - Alejandro Náger Fernández-Calvo (a.nager@alumnos.upm.es)
-- X (X@alumnos.upm.es)
+- Alfonso del Río Cuesta (alfonso.delrio@alumnos.upm.es)
 - Y (Y@alumnos.upm.es)
 - Z (Z@alumnos.upm.es)
 
