@@ -1,7 +1,6 @@
 import math
-import tkinter as tk #GUI
-import networkx as nx #grafo
-import random
+import tkinter as tk                # GUI
+import networkx as nx               # Grafo
 from tkinter import *
 from queue import PriorityQueue
 
@@ -9,25 +8,19 @@ from queue import PriorityQueue
 window = tk.Tk()
 window.title("Mapa metro de Lyon")
 
-col = 30 #dimensiones tablero (eje x)
-row = 32 #dimensiones tablero (eje y)
-#init = (0,0) #posicion inicial (row,col)
-#end = (random.randint(0,row-1),random.randint(0,col-1)) #posicion final
-#print("Posicion final:",end)
-#while end == init:
-#    end = (random.randint(0,row-1),random.randint(0,col-1)) #asegurarnos de que no tiene el mismo inicio y final
-
 # TABLERO
 # El tablero es una lista de listas
-grid_cells = [] #lista de celdas
+col = 30                            # Dimensiones tablero (eje x)
+row = 32                            # Dimensiones tablero (eje y)
+grid_cells = []                     # Lista de celdas
 for i in range(col):
-    cell_row = [] #lista de celdas por fila
+    cell_row = []                   # Lista de celdas por fila
     for j in range(row):
-        cell = tk.Label(window, width=3, height=1, background="grey85", relief="raised", borderwidth=1) #crear celda
-        #cell = tk.Label(window, width=5, height=2, background="grey85", relief="raised", borderwidth=1) #mapa más grande
-        cell.grid(row=j, column=i) #añadir celda a la ventana
-        cell_row.append(cell) #añadir celda a la fila
-    grid_cells.append(cell_row) #añadir fila a la lista de celdas
+        cell = tk.Label(window, width=3, height=1, background="grey85", relief="raised", borderwidth=1) # Crear celda
+        #cell = tk.Label(window, width=5, height=2, background="grey85", relief="raised", borderwidth=1) # Mapa mas grande
+        cell.grid(row=j, column=i)  # Anadir celda a la ventana
+        cell_row.append(cell)       # Anadir celda a la fila
+    grid_cells.append(cell_row)     # Anadir fila a la lista de celdas
 
 # FUNCIONES
 def set_color(row, col, color):
@@ -65,12 +58,12 @@ estaciones = {
     'D15': {'nombre': 'Gare de Vénissieux', 'linea': 'Verde', 'pos': (20,29)},
 }
 
-for nodo, estacion in estaciones.items(): #para añadir nodos con atributos y acceder a ellos
+for nodo, estacion in estaciones.items(): # Para anadir nodos con atributos y acceder a ellos
     metro.add_node(nodo, nombre=estacion['nombre'], linea=estacion['linea'], pos=estacion['pos'])
 
 # Agregar aristas (conexiones) y pesos (distancia en metros)
-# En nuestro caso el peso es la distancia entre dos estaciones pero podría ser el tiempo que tarda en llegar de una a otra
-# Por tanto, nosotros comprobamos el camino más corto pero no el más rápido
+# En nuestro caso el peso es la distancia entre dos estaciones pero podria ser el tiempo que tarda en llegar de una a otra
+# Por tanto, nosotros comprobamos el camino mas corto pero no el mas rapido
 conexiones = [
     ('A1', 'A2', 416), ('A2', 'AD', 654), ('AD', 'A4', 660), ('A4', 'AC', 460), ('AC', 'A6', 670), ('A6', 'A7', 660), ('A7', 'AB', 830),
     ('AB', 'A9', 770), ('A9', 'A10', 750), ('A10', 'A11', 590), ('A11', 'A12', 840), ('A12', 'A13', 680), ('A13', 'A14', 1050),
@@ -81,7 +74,7 @@ conexiones = [
     ('D8', 'D9', 900), ('D9', 'D10', 600), ('D10', 'D11', 640), ('D11', 'D12', 760), ('D12', 'D13', 1040), ('D13', 'D14', 1190), ('D14', 'D15', 1600),
 ]
 
-for estacion1, estacion2, distancia in conexiones: #para añadir aristas con pesos y acceder a ellos
+for estacion1, estacion2, distancia in conexiones: # Para anadir aristas con pesos y acceder a ellos
     metro.add_edge(estacion1, estacion2, distancia=distancia)
 
 # DIBUJAR LINEAS
@@ -101,14 +94,14 @@ estaciones_transbordo = {
 
 def unir_y_pintar(nodo1, nodo2, color=None):
     if color == None:
-        #si ambos nodos están en la misma linea, pintar de ese color
+        # Si ambos nodos estan en la misma linea, pintar del color de la linea
         if estaciones[nodo1]['linea'] == estaciones[nodo2]['linea']:
             color = colores_lineas[estaciones[nodo1]['linea']]
-        elif nodo1 in estaciones_transbordo: #es un nodo transbordo
+        elif nodo1 in estaciones_transbordo: # Es un nodo transbordo
             color = colores_lineas[estaciones[nodo2]['linea']]
-        elif nodo2 in estaciones_transbordo: #es un nodo transbordo
+        elif nodo2 in estaciones_transbordo: # Es un nodo transbordo
             color = colores_lineas[estaciones[nodo1]['linea']]
-        else: #si no, pintar de color morado (no debería pasar)
+        else: # Si no, pintar de color morado (no deberia pasar)
             color = 'purple'
     else:
         color = color
@@ -117,25 +110,29 @@ def unir_y_pintar(nodo1, nodo2, color=None):
     pos2 = estaciones[nodo2]['pos']
 
     # Determinar la dirección de los nodos y pintar en el color correspondiente
-    if pos1[0] == pos2[0]: #misma fila
-        if pos1[1] < pos2[1]: #misma fila, nodo1 a la izquierda de nodo2
-            for col in range(pos1[1], pos2[1] + 1): #pintar desde nodo1 hasta nodo2
+    if pos1[0] == pos2[0]: # Misma fila
+        if pos1[1] < pos2[1]: 
+            # nodo1 a la izquierda de nodo2
+            for col in range(pos1[1], pos2[1] + 1): # Pintar desde nodo1 hasta nodo2
                 set_color(pos1[0], col, color)
-        else: #misma fila, nodo1 a la derecha de nodo2
-            for col in range(pos2[1], pos1[1] + 1): #pintar desde nodo2 hasta nodo1
+        else: 
+            #nodo1 a la derecha de nodo2
+            for col in range(pos2[1], pos1[1] + 1): # Pintar desde nodo2 hasta nodo1
                 set_color(pos1[0], col, color)
-    elif pos1[1] == pos2[1]: #misma columna
-        if pos1[0] < pos2[0]: #misma columna, nodo1 arriba de nodo2
+    elif pos1[1] == pos2[1]: # Misma columna
+        if pos1[0] < pos2[0]: 
+            # nodo1 arriba de nodo2
             for row in range(pos1[0], pos2[0] + 1): 
                 set_color(row, pos1[1], color)
-        else: #misma columna, nodo1 abajo de nodo2
+        else: 
+            # nodo1 abajo de nodo2
             for row in range(pos2[0], pos1[0] + 1):
                 set_color(row, pos1[1], color)
-    else: #diagonal
-        #Calcular la pendiente entre los dos nodos
+    else: # Diagonal
+        # Calcular la pendiente entre los dos nodos
         dx = pos2[1] - pos1[1]
         dy = pos2[0] - pos1[0]
-        if abs(dx) > abs(dy):  # mayor cambio en x
+        if abs(dx) > abs(dy):  # Mayor cambio en x
             if dx > 0:
                 # nodo2 a la derecha de nodo1
                 for col in range(pos1[1], pos2[1] + 1):
@@ -146,7 +143,7 @@ def unir_y_pintar(nodo1, nodo2, color=None):
                 for col in range(pos2[1], pos1[1] + 1):
                     row = pos1[0] + (col - pos1[1]) * dy / dx
                     set_color(int(row), col, color)
-        else:  # mayor cambio en y
+        else:   # Mayor cambio en y
             if dy > 0:
                 # nodo2 abajo de nodo1
                 for row in range(pos1[0], pos2[0] + 1):
@@ -173,11 +170,11 @@ colores_nodos = {
 def dibujar_nodos():
     for nodo, estacion in estaciones.items():
         linea = estacion['linea']
-        color = colores_nodos.get(linea, 'black')  # Usar negro como color predeterminado si no se encuentra la línea
+        color = colores_nodos.get(linea, 'black')   # Usar negro como color predeterminado si no se encuentra la línea
         pos = estacion['pos']
         if nodo in estaciones_transbordo:
             set_color(pos[0], pos[1], "yellow")
-        else: # color por defecto
+        else:                                       # Color por defecto
             set_color(pos[0], pos[1], color)
 
 dibujar_nodos()
@@ -186,13 +183,13 @@ dibujar_nodos()
 # Función para mostrar información de una estación en el mapa
 def mostrar_info(event, estacion):
     nombre = metro.nodes[estacion]['nombre']
-    lineas = set()  # Utilizamos un conjunto para evitar duplicados
+    lineas = set()                              # Utilizamos un conjunto para evitar duplicados
     lineas.add(metro.nodes[estacion]['linea'])  # Agregamos la línea de la estación actual
 
-    if estacion in estaciones_transbordo:  # Es estación transbordo
+    if estacion in estaciones_transbordo:       # Es estación transbordo
         for vecino in metro.neighbors(estacion):
             linea_vecino = metro.nodes[vecino]['linea']
-            lineas.add(linea_vecino)  # Agregamos las líneas de los vecinos al conjunto
+            lineas.add(linea_vecino)            # Agregamos las líneas de los vecinos al conjunto
         lineas_str = ', '.join(lineas)
         info_label.config(text=f"Nombre: {nombre}\nLíneas: {lineas_str}")
     else:  # No es estación transbordo
@@ -200,8 +197,8 @@ def mostrar_info(event, estacion):
         info_label.config(text=f"Nombre: {nombre}\nLínea: {linea}")
 
 # Etiqueta para mostrar información
-info_label = tk.Label(window, text="", background="grey85") #crear etiqueta
-info_label.grid(row=row, columnspan=col) #añadir etiqueta a la ventana
+info_label = tk.Label(window, text="", background="grey85") # Crear etiqueta
+info_label.grid(row=row, columnspan=col)                    # Añadir etiqueta a la ventana
 
 # Configurar eventos de ratón para cada celda
 for i in range(col): 
@@ -209,18 +206,18 @@ for i in range(col):
         estacion = None
         for nodo, pos in estaciones.items():
             if pos['pos'] == (i, j):
-                estacion = nodo #guardar estacion
+                estacion = nodo     # Guardar estacion
                 break
-        if estacion: #si estaciópn tiene valor
-            cell = grid_cells[i][j] #obtener celda
-            cell.bind("<Enter>", lambda event, estacion=estacion: mostrar_info(event, estacion)) #mostrar info al pasar el ratón por encima
-            cell.bind("<Leave>", lambda event: info_label.config(text="")) #borrar info al quitar el ratón
+        if estacion:                # Si estaciópn tiene valor
+            cell = grid_cells[i][j] # Obtener celda
+            cell.bind("<Enter>", lambda event, estacion=estacion: mostrar_info(event, estacion)) # Mostrar info al pasar el ratón por encima
+            cell.bind("<Leave>", lambda event: info_label.config(text="")) # Borrar info al quitar el ratón
 
 # ALGORITMO
 def h (nodo1, nodo2): #heurística
     pos1 = estaciones[nodo1]['pos']
     pos2 = estaciones[nodo2]['pos']
-    return math.sqrt((pos1[0]-pos2[0])**2 + (pos1[1]-pos2[1])**2) #modulo de un vector
+    return math.sqrt((pos1[0]-pos2[0])**2 + (pos1[1]-pos2[1])**2) # Modulo de un vector
 
 def aEstrella(metro, inicio, fin):
     # Inicializamos los conjuntos abiertos y cerrados
@@ -251,12 +248,12 @@ def aEstrella(metro, inicio, fin):
                 continue
 
             # Calculamos el costo acumulado desde el inicio hasta el vecino
-            nuevo_costo = g[nodo_actual] + metro[nodo_actual][vecino]['distancia']
+            nuevo_coste = g[nodo_actual] + metro[nodo_actual][vecino]['distancia']
 
-            if nuevo_costo < g[vecino]:
+            if nuevo_coste < g[vecino]:
                 # Este camino es mejor que cualquier otro previamente calculado
-                g[vecino] = nuevo_costo
-                f = nuevo_costo + h(vecino, fin)  # Función f(n) = g(n) + h(n)
+                g[vecino] = nuevo_coste
+                f = nuevo_coste + h(vecino, fin)  # Función f(n) = g(n) + h(n)
 
                 # Actualizamos la cola de prioridad con el nuevo costo
                 abiertos.put((f, vecino))
@@ -270,9 +267,9 @@ def imprime_nodos(camino):
         print("Nodos en el camino:")
         for nodo in camino:
             if nodo == camino[-1]:
-                print(nodo) #imprimir con salto de línea
+                print(nodo)             # Imprimir con salto de línea
             else:
-                print(nodo, end=" -> ") #imprimir sin salto de línea
+                print(nodo, end=" -> ") # Imprimir sin salto de línea
     else:
         print("No se encontró un camino válido.")
 
@@ -302,7 +299,7 @@ def mostrar_camino(camino, delay=500, color='black'):
 def imprimir_distancia(camino, metro):
     distancia_total = 0 
 
-    for i in range(len(camino) - 1): #recorrer el camino
+    for i in range(len(camino) - 1): # Recorrer el camino
         nodo_actual = camino[i]
         nodo_siguiente = camino[i + 1]
         nombre_nodo_actual = metro.nodes[nodo_actual]['nombre']
@@ -314,12 +311,12 @@ def imprimir_distancia(camino, metro):
     print(f'Distancia total recorrida de inicio a fin: {distancia_total} metros')
     
 # LLAMADA AL PROGRAMA
-inicio = 'D15'                          # Nodo de inicio
-fin = 'A14'                            # Nodo de destino
+inicio = 'B2'                          # Nodo de inicio
+fin = 'AB'                             # Nodo de destino
 
-camino = aEstrella(metro, inicio, fin) #llamada al algoritmo
-mostrar_camino(camino)                 #llamada para mostrar el camino (GUI)
-imprime_nodos(camino)                  #llamada para imprimir los nodos del camino
-imprimir_distancia(camino, metro)      #llamada para imprimir las distancias
+camino = aEstrella(metro, inicio, fin) # Llamada al algoritmo
+mostrar_camino(camino)                 # Llamada para mostrar el camino (GUI)
+imprime_nodos(camino)                  # Llamada para imprimir los nodos del camino
+imprimir_distancia(camino, metro)      # Llamada para imprimir las distancias
 
-window.mainloop()                      #bucle principal tkinter
+window.mainloop()                      # Bucle principal tkinter
