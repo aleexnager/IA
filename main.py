@@ -1,7 +1,6 @@
 import math
 import tkinter as tk                # GUI
 import networkx as nx               # Grafo
-import random
 from tkinter import *
 from queue import PriorityQueue
 
@@ -22,11 +21,6 @@ for i in range(col):
         cell.grid(row=j, column=i)  # Anadir celda a la ventana
         cell_row.append(cell)       # Anadir celda a la fila
     grid_cells.append(cell_row)     # Anadir fila a la lista de celdas
-
-# FUNCIONES
-def set_color(row, col, color):
-    cell = grid_cells[row][col]
-    cell.configure(background=color)
 
 # LINEAS DE METRO
 # Crear un grafo
@@ -79,6 +73,11 @@ for estacion1, estacion2, distancia in conexiones: # Para anadir aristas con pes
     metro.add_edge(estacion1, estacion2, distancia=distancia)
 
 # DIBUJAR LINEAS
+# Función para pintar una celda
+def set_color(row, col, color):
+    cell = grid_cells[row][col]
+    cell.configure(background=color)
+
 colores_lineas = {
     'Roja': 'red',
     'Azul': 'blue',
@@ -226,7 +225,7 @@ def aEstrella(metro, inicio, fin):
     abiertos.put((0, inicio))  # La prioridad es el costo acumulado + la heurística
     cerrados = set()
 
-    # Inicializamos los diccionarios de costos y padres
+    # Inicializamos los diccionarios de costes y padres
     g = {nodo: float('inf') for nodo in metro.nodes()}
     g[inicio] = 0
     padre = {}
@@ -234,6 +233,7 @@ def aEstrella(metro, inicio, fin):
     while not abiertos.empty():
         _, nodo_actual = abiertos.get()
 
+        # Comprobamos si hemos llegado al destino
         if nodo_actual == fin:
             # Hemos llegado al destino, reconstruimos el camino
             camino = []
@@ -244,11 +244,13 @@ def aEstrella(metro, inicio, fin):
 
         cerrados.add(nodo_actual)
 
+        # Para cada vecino del nodo actual
         for vecino in metro.neighbors(nodo_actual):
+            # Si el vecino ya está en el conjunto de nodos cerrados, lo ignoramos
             if vecino in cerrados:
                 continue
 
-            # Calculamos el costo acumulado desde el inicio hasta el vecino
+            # Calculamos el coste acumulado desde el inicio hasta el vecino
             nuevo_coste = g[nodo_actual] + metro[nodo_actual][vecino]['distancia']
 
             if nuevo_coste < g[vecino]:
@@ -256,28 +258,17 @@ def aEstrella(metro, inicio, fin):
                 g[vecino] = nuevo_coste
                 f = nuevo_coste + h(vecino, fin)  # Función f(n) = g(n) + h(n)
 
-                # Actualizamos la cola de prioridad con el nuevo costo
+                # Actualizamos la cola de prioridad con el nuevo coste
                 abiertos.put((f, vecino))
                 padre[vecino] = nodo_actual
 
     # Si no se encuentra un camino, devolvemos None
     return None
 
-def imprime_nodos(camino):
-    if camino:
-        print("Nodos en el camino:")
-        for nodo in camino:
-            if nodo == camino[-1]:
-                print(nodo)             # Imprimir con salto de línea
-            else:
-                print(nodo, end=" -> ") # Imprimir sin salto de línea
-    else:
-        print("No se encontró un camino válido.")
-
 # Muestra nodos y aristas en el camino (con animación)
-def mostrar_camino(camino, delay=500, color='black'):
+def mostrar_camino(camino, delay=500, color='grey30'):
     if not camino:
-        print("No se encontró un camino válido.")
+        print("\nNo se encontró un camino válido.")
         return
 
     def pinta_camino(i=1):
@@ -285,18 +276,29 @@ def mostrar_camino(camino, delay=500, color='black'):
             nodo1 = camino[i - 1]
             nodo2 = camino[i]
             unir_y_pintar(nodo1, nodo2, color)                                            # Pinta la arista
-            set_color(estaciones[nodo1]['pos'][0], estaciones[nodo1]['pos'][1], "grey30") # Pinta el nodo actual
+            set_color(estaciones[nodo1]['pos'][0], estaciones[nodo1]['pos'][1], "black")  # Pinta el nodo actual
             window.update()                                                               # Actualiza la ventana
             window.after(delay, pinta_camino, i + 1)                                      # Llamada recursiva con delay
         
         # Pintar el último nodo
         if i == len(camino):
             ultimo_nodo = camino[-1]
-            set_color(estaciones[ultimo_nodo]['pos'][0], estaciones[ultimo_nodo]['pos'][1], "grey30")
+            set_color(estaciones[ultimo_nodo]['pos'][0], estaciones[ultimo_nodo]['pos'][1], "black")
             window.update()
 
     pinta_camino()
 
+def imprime_nodos(camino):
+    if camino:
+        print("\nNodos en el camino:")
+        for nodo in camino:
+            if nodo == camino[-1]:
+                print(nodo)             # Imprimir con salto de línea
+            else:
+                print(nodo, end=" -> ") # Imprimir sin salto de línea
+    else:
+        print("\nNo se encontró un camino válido.")
+        
 def imprimir_distancia(camino, metro):
     distancia_total = 0 
 
@@ -312,12 +314,84 @@ def imprimir_distancia(camino, metro):
     print(f'Distancia total recorrida de inicio a fin: {distancia_total} metros')
     
 # LLAMADA AL PROGRAMA
-inicio = 'B2'                          # Nodo de inicio
-fin = 'AB'                             # Nodo de destino
+# Nombres de los nodos para pasarlos por la barra de comandos
+nombres_nodos = {
+    'Perrache': 'A1',
+    'Ampère Victor Hugo': 'A2',
+    'Bellecour': 'AD',
+    'Cordeliers': 'A4',
+    'Hôtel de Ville Louis Pradel': 'AC',
+    'Foch': 'A6',
+    'Masséna': 'A7',
+    'Charpennes Charles Hernu': 'AB',
+    'République Villeurbanne': 'A9',
+    'Gratte-Ciel': 'A10',
+    'Flachet': 'A11',
+    'Cusset': 'A12',
+    'Laurent Bonnevay Astroballe': 'A13',
+    'Vaulx-en-Velin La Sole': 'A14',
+    'Oullins Gare': 'B1',
+    'Stade de Gerland': 'B2',
+    'Debourg': 'B3',
+    'Place Jean Jaurès': 'B4',
+    'Jean Macé': 'B5',
+    'Saxe Gambetta': 'BD',
+    'Place Guichard Bourse de Travail': 'B7',
+    'Gare Part-Dieu Vivier Merle': 'B8',
+    'Brotteaux': 'B9',
+    'Cuire': 'C1',
+    'Hénon': 'C2',
+    'Croix-Rousse': 'C3',
+    'Croix-Paquet': 'C4',
+    'Gare de Valse': 'D1',
+    'Valmy': 'D2',
+    'Gorge de Loup': 'D3',
+    'Minimes Théätres Romais': 'D4',
+    'Guillotière': 'D6',
+    'Garibaldi': 'D8',
+    'Sans-Souci': 'D9',
+    'Monplaisir-Lumière': 'D10',
+    'Grange Blanche': 'D11',
+    'Laennec': 'D12',
+    'Mermoz Pinnel': 'D13',
+    'Parilly': 'D14',
+    'Gare de Vénissieux': 'D15',
+}
 
-camino = aEstrella(metro, inicio, fin) # Llamada al algoritmo
-mostrar_camino(camino)                 # Llamada para mostrar el camino (GUI)
-imprime_nodos(camino)                  # Llamada para imprimir los nodos del camino
-imprimir_distancia(camino, metro)      # Llamada para imprimir las distancias
+# Llamada mediante nombre o codigo
+def obtener_nodo(input_str):
+    # Intenta obtener el nombre directamente
+    nombre_directo = nombres_nodos.get(input_str)
+    if nombre_directo:
+        return nombre_directo, input_str
 
-window.mainloop()                      # Bucle principal tkinter
+    # Si no es un nombre, intenta obtener el código
+    codigo_directo = next((codigo for codigo, nombre in nombres_nodos.items() if nombre == input_str), None)
+    if codigo_directo:
+        return input_str, codigo_directo
+
+    # Si no se encuentra ni el nombre ni el código, devuelve errores
+    return 'error', 'error'
+
+# Obtener el nodo de inicio
+inicioAux = input('¿En qué estación está?\n')
+inicio, codigo_inicio = obtener_nodo(inicioAux)
+
+# Obtener el nodo de destino
+finAux = input('¿A qué estación quiere llegar?\n')
+fin, codigo_fin = obtener_nodo(finAux)
+
+# Verificar errores
+if inicio == 'error' and fin == 'error':
+    print('Error: No se han reconocido los nombres de las estaciones de inicio y de destino')
+elif inicio == 'error':
+    print('Error: No se ha reconocido el nombre o código de la estación de inicio')
+elif fin == 'error':
+    print('Error: No se ha reconocido el nombre o código de la estación de destino')
+else:
+    camino = aEstrella(metro, inicio, fin) # Llamada al algoritmo
+    mostrar_camino(camino)                 # Llamada para mostrar el camino (GUI)
+    imprime_nodos(camino)                  # Llamada para imprimir los nodos del camino
+    imprimir_distancia(camino, metro)      # Llamada para imprimir las distancias
+
+window.mainloop()                          # Bucle principal tkinter
