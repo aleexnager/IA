@@ -384,14 +384,24 @@ fin, codigo_fin = obtener_nodo(finAux)
 # Verificar errores
 if inicio == 'error' and fin == 'error':
     print('Error: No se han reconocido los nombres de las estaciones de inicio y de destino')
+    exit()
 elif inicio == 'error':
     print('Error: No se ha reconocido el nombre o código de la estación de inicio')
+    exit()
 elif fin == 'error':
     print('Error: No se ha reconocido el nombre o código de la estación de destino')
+    exit()
 else:
     camino = aEstrella(metro, inicio, fin) # Llamada al algoritmo
     mostrar_camino(camino)                 # Llamada para mostrar el camino (GUI)
     imprime_nodos(camino)                  # Llamada para imprimir los nodos del camino
     imprimir_distancia(camino, metro)      # Llamada para imprimir las distancias
+    
+    # Si pulsamos la tecla enter en la ventana, se cierra la ventana
+    window.bind('<Return>', lambda event: window.destroy())
+    # Si pulsamos la tecla enter en la terminal, hacemos exit del programa
+    input('\nPulse <enter> para salir del programa\n')
+    exit()
+
 
 window.mainloop()                          # Bucle principal tkinter
