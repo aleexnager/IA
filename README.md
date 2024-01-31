@@ -5,8 +5,6 @@
 ### Autores:
 - Alejandro Náger Fernández-Calvo (a.nager@alumnos.upm.es)
 - Alfonso del Río Cuesta (alfonso.delrio@alumnos.upm.es)
-- Y (Y@alumnos.upm.es)
-- Z (Z@alumnos.upm.es)
 
 ### Enunciado:
 [Practica IA Lyon 2023](/docs/Practica%20IA%20Lyon%202023.pdf)
