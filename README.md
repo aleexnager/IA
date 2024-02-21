@@ -31,8 +31,8 @@ $ pip install networkx
 ```
 
 ## Posibles mejoras en el código:
-Actualmente las estaciones inicio y fin se asignan al final del código de manera manual.
-  1. Haciendo click en el mapa (mucho más compleja)
+Actualmente las estaciones inicio y fin se asignan al final del código de manera manual. Posibles mejoras:
+  1. Haciendo click en el mapa para seleccionar las estaciones, es recomendable mejorar la resolución del mapa.
 
 >[!TIP]
 >Se puede ampliar el mapa descomentando la `línea 21` y comentando la `línea 20`
